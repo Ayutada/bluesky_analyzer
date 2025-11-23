@@ -1,0 +1,1 @@
+print("MBTI Crawler is starting...")
