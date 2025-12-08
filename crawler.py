@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from markdownify import markdownify as md
 
 # --- 配置区域 ---
-OUTPUT_FOLDER = "data"
+OUTPUT_FOLDER = "rag_docs\jp"
 
 # 定义 16 种人格的代码列表
 MBTI_TYPES = [
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     for mbti_type in MBTI_TYPES:
         # 构造 URL：通常是 /ch/代码-人格，注意代码通常小写
         # 例如: https://www.16personalities.com/ch/intj-人格
-        target_url = f"https://www.16personalities.com/ch/{mbti_type.lower()}-人格"
+        target_url = f"https://www.16personalities.com/ja/{mbti_type.lower()}型の性格"
         
         fetch_and_save(target_url, OUTPUT_FOLDER)
         
