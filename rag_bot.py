@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 
 # 1. 加载 .env 中的 API Key
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), 'env', '.env'))
 
 # 检查 Key 是否加载成功
 if not os.getenv("GOOGLE_API_KEY") or not os.getenv("OPENAI_API_KEY"):
@@ -33,46 +33,65 @@ embeddings = OpenAIEmbeddings(
     model="text-embedding-3-small"
 )
 
-# 3. 加载并处理数据 (核心修改部分)
-print("📂 正在扫描 rag_docs 文件夹下的所有 .md 文件 (含子目录)...")
-
-try:
-    # DirectoryLoader 配置说明：
-    # path: 目标文件夹路径
-    # glob: "**/*.md" 表示递归查找所有子文件夹里的 markdown 文件
-    # loader_cls: 强制使用 TextLoader (纯文本模式)，避免安装复杂的 unstructured 库
-    # loader_kwargs: 必须指定 utf-8，否则读取中文/日文文件会报错
-    loader = DirectoryLoader(
-        path="./rag_docs", 
-        glob="**/*.md", 
-        loader_cls=TextLoader,
-        loader_kwargs={'encoding': 'utf-8'}
-    )
+# 3. 加载并处理数据 - 针对三个语言版本
+def load_and_build_vectorstore(language, folder_path):
+    """
+    为指定语言加载文档并建立向量数据库
+    """
+    print(f"\n📂 正在扫描 {folder_path} 文件夹下的所有 .md 文件...")
     
-    docs = loader.load()
-    print(f"✅ 成功加载 {len(docs)} 个文件。")
+    try:
+        loader = DirectoryLoader(
+            path=folder_path, 
+            glob="*.md", 
+            loader_cls=TextLoader,
+            loader_kwargs={'encoding': 'utf-8'}
+        )
+        
+        docs = loader.load()
+        print(f"✅ {language} 版本：成功加载 {len(docs)} 个文件。")
 
-    # 文本切分 (Chunking)
-    # chunk_size=1000: 每个片段约 1000 字符
-    # chunk_overlap=200: 片段之间重叠 200 字符，保证上下文连贯
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    splits = text_splitter.split_documents(docs)
-    
-    print(f"✂️  切分完成，共生成 {len(splits)} 个文档片段。")
-    print("🚀 正在建立向量数据库 (调用 OpenAI Embedding API)...")
+        # 文本切分 (Chunking)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        splits = text_splitter.split_documents(docs)
+        
+        print(f"✂️  切分完成，共生成 {len(splits)} 个文档片段。")
+        print(f"🚀 正在为 {language} 版本建立向量数据库...")
 
-    # 4. 建立向量数据库
-    vectorstore = FAISS.from_documents(splits, embeddings)
-    retriever = vectorstore.as_retriever()
-    print("💾 向量数据库建立完毕！")
+        # 建立向量数据库
+        vectorstore = FAISS.from_documents(splits, embeddings)
+        vectorstore.save_local(f"./rag_vectorstore_{language}")
+        print(f"💾 {language} 版本的向量数据库已保存！")
+        
+        return vectorstore
+        
+    except Exception as e:
+        print(f"❌ {language} 版本读取文件出错: {e}")
+        return None
 
-except Exception as e:
-    print(f"❌ 读取文件出错: {e}")
-    print("请检查：1. rag_docs 文件夹是否存在 2. 文件是否为有效的 markdown 格式")
+# 加载三个语言版本的数据
+languages = {
+    "cn": "./rag_docs/cn",
+    "en": "./rag_docs/en",
+    "jp": "./rag_docs/jp"
+}
+
+vectorstores = {}
+for lang_code, folder_path in languages.items():
+    if os.path.exists(folder_path):
+        vectorstores[lang_code] = load_and_build_vectorstore(lang_code, folder_path)
+    else:
+        print(f"⚠️  警告：{folder_path} 文件夹不存在，跳过 {lang_code} 版本")
+
+if not vectorstores:
+    print("❌ 错误：没有成功加载任何语言版本的数据!")
     exit()
 
+print(f"\n✅ 成功加载 {len(vectorstores)} 个语言版本的数据库")
+
 # 5. 定义 RAG 的 Prompt 模板
-template = """
+templates = {
+    "cn": """
 你是一个精通 MBTI 人格理论的专家助手。
 请基于下面的【背景信息】回答用户的【问题】。
 如果背景信息里没有答案，请诚实地说不知道，不要编造。
@@ -82,22 +101,67 @@ template = """
 
 【用户问题】：
 {question}
-"""
-prompt = ChatPromptTemplate.from_template(template)
+""",
+    "en": """
+You are an expert assistant proficient in MBTI personality theory.
+Please answer the user's【question】based on the following【background information】.
+If the background information does not contain the answer, please honestly say you don't know, don't make it up.
 
-# 6. 构建 RAG 链
-rag_chain = (
-    {"context": retriever, "question": RunnablePassthrough()}
-    | prompt
-    | llm
-    | StrOutputParser()
-)
+【Background Information】:
+{context}
+
+【User Question】:
+{question}
+""",
+    "jp": """
+あなたはMBTI人格理論に精通した専門家アシスタントです。
+以下の【背景情報】に基づいて、ユーザーの【質問】に答えてください。
+背景情報に答えがない場合は、正直に知らないと言ってください。作り話をしないでください。
+
+【背景情報】：
+{context}
+
+【ユーザーの質問】：
+{question}
+"""
+}
+
+prompts = {lang: ChatPromptTemplate.from_template(template) for lang, template in templates.items()}
+
+# 6. 构建三个语言版本的 RAG 链
+rag_chains = {}
+for lang_code, vectorstore in vectorstores.items():
+    retriever = vectorstore.as_retriever()
+    rag_chains[lang_code] = (
+        {"context": retriever, "question": RunnablePassthrough()}
+        | prompts[lang_code]
+        | llm
+        | StrOutputParser()
+    )
+    print(f"✅ {lang_code.upper()} RAG 链建立完成")
 
 # --- 交互式问答循环 ---
-print("\n=== 🤖 MBTI 智能助手已就绪 (输入 'exit' 退出) ===")
+print("\n=== 🤖 MBTI 智能助手已就绪 ===")
+print("支持语言: CN (中文), EN (英文), JP (日文)")
+print("输入 'exit' 退出\n")
+
+current_language = "cn"  # 默认中文
 
 while True:
-    user_input = input("\n请提问 (例如: ENFJ的优缺点是什么?): ")
+    lang_hint = f"[{current_language.upper()}]"
+    user_input = input(f"\n{lang_hint} 请提问 (或输入 'lang' 切换语言): ")
+    
+    # 处理语言切换
+    if user_input.lower() == "lang":
+        print("\n选择语言: CN (中文) | EN (英文) | JP (日文)")
+        lang_choice = input("输入语言代码: ").lower()
+        if lang_choice in rag_chains:
+            current_language = lang_choice
+            print(f"✅ 已切换至 {lang_choice.upper()} 版本")
+        else:
+            print(f"❌ 不支持的语言代码: {lang_choice}")
+        continue
+    
     if user_input.lower() in ["exit", "quit", "q"]:
         print("再见！👋")
         break
@@ -107,7 +171,7 @@ while True:
 
     print("Thinking...", end="", flush=True)
     try:
-        response = rag_chain.invoke(user_input)
+        response = rag_chains[current_language].invoke(user_input)
         # 清除 "Thinking..." 并打印回答
         print(f"\r{' ' * 20}\r", end="") 
         print(f"🗣️  回答: {response}")
