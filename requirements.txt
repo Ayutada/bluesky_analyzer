@@ -1,3 +1,9 @@
 requests
 beautifulsoup4
 markdownify
+python-dotenv
+langchain
+langchain-google-genai
+langchain-openai
+langchain-community
+faiss-cpu
