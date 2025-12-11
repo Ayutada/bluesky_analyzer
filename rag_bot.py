@@ -141,39 +141,92 @@ for lang_code, vectorstore in vectorstores.items():
     print(f"✅ {lang_code.upper()} RAG 链建立完成")
 
 # --- 交互式问答循环 ---
-print("\n=== 🤖 MBTI 智能助手已就绪 ===")
-print("支持语言: CN (中文), EN (英文), JP (日文)")
-print("输入 'exit' 退出\n")
+if __name__ == "__main__":
+    print("\n=== 🤖 MBTI 智能助手已就绪 ===")
+    print("支持语言: CN (中文), EN (英文), JP (日文)")
+    print("输入 'exit' 退出\n")
 
-current_language = "cn"  # 默认中文
+    current_language = "cn"  # 默认中文
 
-while True:
-    lang_hint = f"[{current_language.upper()}]"
-    user_input = input(f"\n{lang_hint} 请提问 (或输入 'lang' 切换语言): ")
-    
-    # 处理语言切换
-    if user_input.lower() == "lang":
-        print("\n选择语言: CN (中文) | EN (英文) | JP (日文)")
-        lang_choice = input("输入语言代码: ").lower()
-        if lang_choice in rag_chains:
-            current_language = lang_choice
-            print(f"✅ 已切换至 {lang_choice.upper()} 版本")
-        else:
-            print(f"❌ 不支持的语言代码: {lang_choice}")
-        continue
-    
-    if user_input.lower() in ["exit", "quit", "q"]:
-        print("再见！👋")
-        break
-    
-    if not user_input.strip():
-        continue
+    while True:
+        lang_hint = f"[{current_language.upper()}]"
+        user_input = input(f"\n{lang_hint} 请提问 (或输入 'lang' 切换语言): ")
+        
+        # 处理语言切换
+        if user_input.lower() == "lang":
+            print("\n选择语言: CN (中文) | EN (英文) | JP (日文)")
+            lang_choice = input("输入语言代码: ").lower()
+            if lang_choice in rag_chains:
+                current_language = lang_choice
+                print(f"✅ 已切换至 {lang_choice.upper()} 版本")
+            else:
+                print(f"❌ 不支持的语言代码: {lang_choice}")
+            continue
+        
+        if user_input.lower() in ["exit", "quit", "q"]:
+            print("再见！👋")
+            break
+        
+        if not user_input.strip():
+            continue
 
-    print("Thinking...", end="", flush=True)
+        print("Thinking...", end="", flush=True)
+        try:
+            response = rag_chains[current_language].invoke(user_input)
+            # 清除 "Thinking..." 并打印回答
+            print(f"\r{' ' * 20}\r", end="") 
+            print(f"🗣️  回答: {response}")
+        except Exception as e:
+            print(f"\n❌ 调用出错: {e}")
+
+# --- 新增：用于 BlueSky 分析的函数 ---
+from langchain_core.output_parsers import JsonOutputParser
+from pydantic import BaseModel, Field
+
+class PersonalityAnalysis(BaseModel):
+    mbti: str = Field(description="推断的 MBTI 类型，例如 INTJ")
+    animal: str = Field(description="推断的动物占卜形象，例如 黑豹")
+    description: str = Field(description="简短的性格画像描述，约 50-100 字")
+
+def analyze_personality(text_content):
+    """
+    根据用户输入的文本内容，分析 MBTI 和动物形象。
+    返回 JSON 格式数据。
+    """
+    parser = JsonOutputParser(pydantic_object=PersonalityAnalysis)
+    
+    prompt = ChatPromptTemplate.from_template(
+        """
+        你是一个精通 MBTI 人格理论和动物占卜的心理分析专家。
+        请仔细阅读以下用户的社交媒体内容（包括简介和帖子），深入分析其言行风格、价值观和思维模式。
+
+        【用户内容】：
+        {text}
+
+        请推断：
+        1. 该用户的 MBTI 类型 (16型人格)。
+        2. 该用户在“动物占卜”中对应的动物形象 (Animal Fortune)。
+        3. 生成一段简短的性格画像。
+
+        请务必按照 JSON 格式输出，不要包含 Markdown 格式标记 (```json ... ```)。
+        
+        {format_instructions}
+        """
+    )
+
+    chain = prompt | llm | parser
+
     try:
-        response = rag_chains[current_language].invoke(user_input)
-        # 清除 "Thinking..." 并打印回答
-        print(f"\r{' ' * 20}\r", end="") 
-        print(f"🗣️  回答: {response}")
+        print("🧠 正在进行 AI 人格分析...")
+        result = chain.invoke({
+            "text": text_content,
+            "format_instructions": parser.get_format_instructions()
+        })
+        return result
     except Exception as e:
-        print(f"\n❌ 调用出错: {e}")
+        print(f"❌ AI 分析失败: {e}")
+        return {
+            "mbti": "Unknown",
+            "animal": "Unknown", 
+            "description": "分析过程中出现错误，请稍后再试。"
+        }

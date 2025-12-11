@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlueSky Personality Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="glass-card">
+            <h1 class="title">BlueSky 人格分析器</h1>
+            <p class="subtitle">输入您的 Handle，AI 将为您揭示 MBTI 与灵魂动物</p>
+
+            <div class="input-group">
+                <input type="text" id="handleInput" placeholder="例如: jay.bsky.social" value="jay.bsky.social">
+                <button id="analyzeBtn" onclick="analyzeProfile()">开始分析</button>
+            </div>
+
+            <div id="loader" class="loader">
+                <div class="spinner"></div>
+                <p>正在连接神经元...可能需要 10-20 秒</p>
+            </div>
+
+            <div id="result-section">
+                <div class="profile-header">
+                    <img id="avatar" src="" alt="Avatar" class="avatar">
+                    <div class="profile-name">
+                        <h3 id="displayName">Display Name</h3>
+                        <span id="handle">@handle</span>
+                    </div>
+                </div>
+
+                <div class="result-cards">
+                    <div class="info-card">
+                        <div class="card-label">MBTI 类型</div>
+                        <div class="card-value" id="mbtiValue">INTJ</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-label">灵魂动物</div>
+                        <div class="card-value" id="animalValue">黑豹</div>
+                    </div>
+                </div>
+
+                <div class="analysis-text">
+                    <div class="card-label" style="text-align: left; margin-bottom: 1rem;">性格画像</div>
+                    <p id="descriptionText">
+                        AI 生成的详细描述将显示在这里...
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function analyzeProfile() {
+            const handleInput = document.getElementById('handleInput');
+            const handle = handleInput.value.trim();
+            const btn = document.getElementById('analyzeBtn');
+            const loader = document.getElementById('loader');
+            const resultSection = document.getElementById('result-section');
+
+            if (!handle) {
+                alert("请输入有效的 BlueSky Handle！");
+                return;
+            }
+
+            // UI State: Loading
+            btn.disabled = true;
+            loader.style.display = 'block';
+            resultSection.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ handle: handle })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "请求失败");
+                }
+
+                // Render Results
+                document.getElementById('mbtiValue').textContent = data.analysis.mbti;
+                document.getElementById('animalValue').textContent = data.analysis.animal;
+                document.getElementById('descriptionText').textContent = data.analysis.description;
+
+                // Profile Data
+                const profile = data.profile;
+                if (profile) {
+                    document.getElementById('displayName').textContent = profile.displayName || handle;
+                    document.getElementById('handle').textContent = `@${profile.handle}`;
+                    if (profile.avatar) {
+                        document.getElementById('avatar').src = profile.avatar;
+                    } else {
+                        // Default placeholder
+                        document.getElementById('avatar').src = "https://ui-avatars.com/api/?name=" + profile.handle;
+                    }
+                }
+
+                resultSection.style.display = 'block';
+
+            } catch (error) {
+                alert("发生错误: " + error.message);
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                loader.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+
+</html>
