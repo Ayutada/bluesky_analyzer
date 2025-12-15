@@ -10,22 +10,57 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .lang-switch button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .lang-switch button:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.4);
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
         <div class="glass-card">
-            <h1 class="title">BlueSky 人格分析器</h1>
-            <p class="subtitle">输入您的 Handle，AI 将为您揭示 MBTI 与灵魂动物</p>
+            <div class="lang-switch">
+                <button onclick="switchLanguage('cn')" title="中文">🇨🇳</button>
+                <button onclick="switchLanguage('jp')" title="日本語">🇯🇵</button>
+                <button onclick="switchLanguage('en')" title="English">🇺🇸</button>
+            </div>
+            <h1 class="title" id="titleText">BlueSky 人格分析器</h1>
+            <p class="subtitle" id="subtitleText">输入您的 Handle，AI 将为您揭示 MBTI 与灵魂动物</p>
 
             <div class="input-group">
                 <input type="text" id="handleInput" placeholder="例如: jay.bsky.social" value="jay.bsky.social">
-                <button id="analyzeBtn" onclick="analyzeProfile()">开始分析</button>
+                <button id="analyzeBtn" onclick="analyzeProfile()"><span id="btnText">开始分析</span></button>
             </div>
 
             <div id="loader" class="loader">
                 <div class="spinner"></div>
-                <p>正在连接神经元...可能需要 10-20 秒</p>
+                <p id="loadingText">正在连接神经元...可能需要 10-20 秒</p>
             </div>
 
             <div id="result-section">
@@ -39,17 +74,17 @@
 
                 <div class="result-cards">
                     <div class="info-card">
-                        <div class="card-label">MBTI 类型</div>
+                        <div class="card-label" id="mbtiLabel">MBTI 类型</div>
                         <div class="card-value" id="mbtiValue">INTJ</div>
                     </div>
                     <div class="info-card">
-                        <div class="card-label">灵魂动物</div>
+                        <div class="card-label" id="animalLabel">灵魂动物</div>
                         <div class="card-value" id="animalValue">黑豹</div>
                     </div>
                 </div>
 
                 <div class="analysis-text">
-                    <div class="card-label" style="text-align: left; margin-bottom: 1rem;">性格画像</div>
+                    <div class="card-label" id="descLabel" style="text-align: left; margin-bottom: 1rem;">性格画像</div>
                     <p id="descriptionText">
                         AI 生成的详细描述将显示在这里...
                     </p>
@@ -59,6 +94,57 @@
     </div>
 
     <script>
+        let currentLang = 'cn';
+
+        const translations = {
+            cn: {
+                title: "BlueSky 人格分析器",
+                subtitle: "输入您的 Handle，AI 将为您揭示 MBTI 与灵魂动物",
+                btn: "开始分析",
+                loading: "正在连接神经元...可能需要 10-20 秒",
+                mbti: "MBTI 类型",
+                animal: "灵魂动物",
+                desc: "性格画像",
+                alertInput: "请输入有效的 BlueSky Handle！",
+                alertError: "发生错误: "
+            },
+            jp: {
+                title: "BlueSky 性格診断",
+                subtitle: "Handleを入力して、AIがMBTIと動物占いを明らかにします",
+                btn: "診断開始",
+                loading: "ニューロン接続中... 10-20秒かかる場合があります",
+                mbti: "MBTI タイプ",
+                animal: "動物占い",
+                desc: "性格プロフィール",
+                alertInput: "有効なBlueSky Handleを入力してください！",
+                alertError: "エラーが発生しました: "
+            },
+            en: {
+                title: "BlueSky Personality Analyzer",
+                subtitle: "Enter your Handle, AI will reveal your MBTI & Spirit Animal",
+                btn: "Analyze",
+                loading: "Connecting neurons... may take 10-20 seconds",
+                mbti: "MBTI Type",
+                animal: "Spirit Animal",
+                desc: "Portrait",
+                alertInput: "Please enter a valid BlueSky Handle!",
+                alertError: "Error occurred: "
+            }
+        };
+
+        function switchLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang];
+
+            document.getElementById('titleText').textContent = t.title;
+            document.getElementById('subtitleText').textContent = t.subtitle;
+            document.getElementById('btnText').textContent = t.btn;
+            document.getElementById('loadingText').textContent = t.loading;
+            document.getElementById('mbtiLabel').textContent = t.mbti;
+            document.getElementById('animalLabel').textContent = t.animal;
+            document.getElementById('descLabel').textContent = t.desc;
+        }
+
         async function analyzeProfile() {
             const handleInput = document.getElementById('handleInput');
             const handle = handleInput.value.trim();
@@ -67,7 +153,7 @@
             const resultSection = document.getElementById('result-section');
 
             if (!handle) {
-                alert("请输入有效的 BlueSky Handle！");
+                alert(translations[currentLang].alertInput);
                 return;
             }
 
@@ -80,7 +166,7 @@
                 const response = await fetch('/api/analyze', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ handle: handle })
+                    body: JSON.stringify({ handle: handle, lang: currentLang })
                 });
 
                 const data = await response.json();
@@ -110,7 +196,7 @@
                 resultSection.style.display = 'block';
 
             } catch (error) {
-                alert("发生错误: " + error.message);
+                alert(translations[currentLang].alertError + error.message);
                 console.error(error);
             } finally {
                 btn.disabled = false;

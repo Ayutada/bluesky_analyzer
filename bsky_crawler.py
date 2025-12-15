@@ -6,7 +6,7 @@ def get_profile_data(handle):
     """
     Fetches profile and recent posts for a given BlueSky handle using the public API.
     """
-    print(f"🔄 Fetching data for: {handle} ...")
+    print(f"Fetching data for: {handle} ...")
     
     # 1. Get Profile
     profile_url = f"{BSKY_API_BASE}/app.bsky.actor.getProfile"
@@ -15,7 +15,7 @@ def get_profile_data(handle):
         profile_res.raise_for_status()
         profile_json = profile_res.json()
     except Exception as e:
-        print(f"❌ Error fetching profile for {handle}: {e}")
+        print(f"Error fetching profile for {handle}: {e}")
         return None
 
     # Implement safe extraction
@@ -31,7 +31,7 @@ def get_profile_data(handle):
     posts_text = []
     
     try:
-        feed_res = requests.get(feed_url, params={"actor": handle, "limit": 20})
+        feed_res = requests.get(feed_url, params={"actor": handle, "limit": 50})
         feed_res.raise_for_status()
         feed_json = feed_res.json()
         
@@ -44,7 +44,7 @@ def get_profile_data(handle):
                 posts_text.append(text)
                 
     except Exception as e:
-        print(f"⚠️ Error fetching feed for {handle}: {e}")
+        print(f"Error fetching feed for {handle}: {e}")
         # Not critical, can continue with just profile description
 
     result = {
@@ -53,7 +53,7 @@ def get_profile_data(handle):
         "full_text_for_analysis": f"User Description:\n{profile_info['description']}\n\nRecent Posts:\n" + "\n".join(posts_text)
     }
     
-    print(f"✅ Successfully fetched data for {handle}")
+    print(f"Successfully fetched data for {handle}")
     return result
 
 if __name__ == "__main__":
