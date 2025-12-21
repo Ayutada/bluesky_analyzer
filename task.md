@@ -12,3 +12,10 @@
     - [x] Implement result display (AJAX/Fetch) <!-- id: 6 -->
 - [ ] Verification
     - [ ] Test end-to-end flow <!-- id: 7 -->
+
+- [ ] React Refactoring
+    - [x] Initialize Vite project
+    - [x] Configure Proxy
+    - [x] Migrate CSS
+    - [x] Implement React Components
+    - [x] Run application
