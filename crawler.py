@@ -62,7 +62,7 @@ if __name__ == "__main__":
     
     for mbti_type in MBTI_TYPES:
         # Construct URL: usually /ch/code-personality, note that code is usually lowercase
-        # 例如: https://www.16personalities.com/ch/intj-人格
+        # Example: https://www.16personalities.com/ch/intj-personality
         target_url = f"https://www.16personalities.com/ja/{mbti_type.lower()}型の性格"
         
         fetch_and_save(target_url, OUTPUT_FOLDER)

@@ -1,15 +1,13 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 import bsky_crawler
-import rag_bot
+import profile_analyzer
 
-app = Flask(__name__, static_folder="static", template_folder="templates")
+app = Flask(__name__)
 CORS(app)
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+# @app.route("/") removed - Frontend is now served by React/Vite
 
 @app.route("/api/analyze", methods=["POST"])
 def analyze_profile():
@@ -29,7 +27,7 @@ def analyze_profile():
         
     # 2. AI Analysis
     text_content = clawler_result["full_text_for_analysis"]
-    analysis_result = rag_bot.analyze_personality(text_content, lang=lang)
+    analysis_result = profile_analyzer.analyze_personality(text_content, lang=lang)
     
     # 3. Construct Response (Merge Information)
     response_data = {

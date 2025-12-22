@@ -58,7 +58,7 @@ def get_profile_data(handle):
 
 if __name__ == "__main__":
     # Test
-    data = get_profile_data("jay.bsky.social")
+    data = get_profile_data("scievents.bsky.social")
     if data:
         print("Test Success:")
         print(data["profile"])
