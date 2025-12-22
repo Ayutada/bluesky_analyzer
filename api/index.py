@@ -1,6 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
+import sys
+
+# Fix for Vercel: Add the current directory to sys.path so it can find sibling modules
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 import bsky_crawler
 import profile_analyzer
 
