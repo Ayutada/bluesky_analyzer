@@ -82,15 +82,35 @@ function App() {
     }
   }
 
+  const handleLangChange = (newLang) => {
+    setLang(newLang)
+    setData(null) // Clear previous results to avoid language mismatch
+  }
+
   // --- View Rendering (JSX) ---
   return (
     <div className="container">
       <div className="glass-card">
         {/* Language Switch */}
         <div className="lang-switch">
-          <button onClick={() => setLang('cn')} title="中文">🇨🇳</button>
-          <button onClick={() => setLang('jp')} title="日本語">🇯🇵</button>
-          <button onClick={() => setLang('en')} title="English">🇺🇸</button>
+          <button
+            className={`lang-btn ${lang === 'cn' ? 'active' : ''}`}
+            onClick={() => handleLangChange('cn')}
+            title="中文">
+            中文
+          </button>
+          <button
+            className={`lang-btn ${lang === 'jp' ? 'active' : ''}`}
+            onClick={() => handleLangChange('jp')}
+            title="日本語">
+            日本語
+          </button>
+          <button
+            className={`lang-btn ${lang === 'en' ? 'active' : ''}`}
+            onClick={() => handleLangChange('en')}
+            title="English">
+            English
+          </button>
         </div>
 
         <h1 className="title">{t.title}</h1>
@@ -105,7 +125,7 @@ function App() {
             value={handle}
             onChange={(e) => setHandle(e.target.value)}
           />
-          <button onClick={handleAnalyze} disabled={loading}>
+          <button className="action-btn" onClick={handleAnalyze} disabled={loading}>
             {t.btn}
           </button>
         </div>

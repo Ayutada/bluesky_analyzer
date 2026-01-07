@@ -35,11 +35,11 @@ def analyze_personality(text_content, lang="cn"):
     parser = JsonOutputParser(pydantic_object=PersonalityAnalysis)
     
     # Determine language instruction based on lang parameter
-    lang_instruction = "IMPORTANT: The content of your analysis (mbti, animal, description) MUST BE IN CHINESE (Simplified)."
+    lang_instruction = "IMPORTANT: The content of your analysis (mbti, animal, description) MUST BE IN CHINESE (Simplified). For the 'animal' field, output ONLY the Chinese name (e.g. '海狸'), DO NOT include Pinyin, English, or parentheses."
     if lang == "jp":
-        lang_instruction = "IMPORTANT: The content of your analysis (mbti, animal, description) MUST BE IN JAPANESE."
+        lang_instruction = "IMPORTANT: The content of your analysis (mbti, animal, description) MUST BE IN JAPANESE. For the 'animal' field, output ONLY the Japanese name (Kanji/Kana), DO NOT include Romanji or English."
     elif lang == "en":
-        lang_instruction = "IMPORTANT: The content of your analysis (mbti, animal, description) MUST BE IN ENGLISH."
+        lang_instruction = "IMPORTANT: The content of your analysis (mbti, animal, description) MUST BE IN ENGLISH. For the 'animal' field, output ONLY the English name."
 
     prompt = ChatPromptTemplate.from_template(
         """
