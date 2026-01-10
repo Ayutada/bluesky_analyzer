@@ -23,6 +23,9 @@ def analyze_profile():
     if not handle:
         return jsonify({"error": "No handle provided"}), 400
 
+    # Normalize handle: trim spaces and convert to lowercase
+    handle = handle.strip().lower()
+
     # 1. Crawl Data
     print(f"Received request for: {handle}")
     clawler_result = bsky_crawler.get_profile_data(handle)

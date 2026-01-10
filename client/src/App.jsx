@@ -6,7 +6,7 @@ function App() {
   // --- State Definition ---
   // Principle: Data that changes on the UI needs to be defined as State
   const [handle, setHandle] = useState('scievents.bsky.social')
-  const [lang, setLang] = useState('cn')
+  const [lang, setLang] = useState('jp')
   const [loading, setLoading] = useState(false)
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
