@@ -17,6 +17,10 @@
   --input-border: #e2e8f0;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   background-color: var(--bg-color);
   color: var(--text-primary);
@@ -254,6 +258,18 @@ button.action-btn:disabled {
 
   .title {
     font-size: 1.8rem;
+  }
+
+  .input-group {
+    flex-direction: column;
+  }
+
+  .input-group button.action-btn {
+    width: 100%;
+  }
+
+  input {
+    width: 100%;
   }
 }
 
