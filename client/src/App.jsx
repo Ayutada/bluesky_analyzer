@@ -15,33 +15,36 @@ function App() {
   const translations = {
     cn: {
       title: "BlueSky 人格分析器",
-      subtitle: "输入您的 Handle，AI 将为您揭示 MBTI 与灵魂动物",
+      subtitle: "输入您的 BlueSky ID (即主页 @ 后的部分)，AI 将为您揭示 MBTI 与灵魂动物",
       btn: "开始分析",
       loading: "正在连接神经元...可能需要 10-20 秒",
       mbti: "MBTI 类型",
       animal: "灵魂动物",
       desc: "性格画像",
-      alertInput: "请输入有效的 BlueSky Handle！",
+      alertInput: "请输入有效的 BlueSky ID！",
+      placeholder: "例如: scievents.bsky.social",
     },
     jp: {
       title: "BlueSky 性格診断",
-      subtitle: "Handleを入力して、AIがMBTIと動物占いを明らかにします",
+      subtitle: "BlueSky ID (プロフィール @ の後ろの部分) を入力して、AIがMBTIと動物占いを明らかにします",
       btn: "診断開始",
       loading: "ニューロン接続中... 10-20秒かかる場合があります",
       mbti: "MBTI タイプ",
       animal: "動物占い",
       desc: "性格プロフィール",
-      alertInput: "有効なBlueSky Handleを入力してください！",
+      alertInput: "有効な BlueSky ID を入力してください！",
+      placeholder: "例: scievents.bsky.social",
     },
     en: {
       title: "BlueSky Personality Analyzer",
-      subtitle: "Enter your Handle, AI will reveal your MBTI & Spirit Animal",
+      subtitle: "Enter your BlueSky ID (the part after @ on your profile), AI will reveal your MBTI & Spirit Animal",
       btn: "Analyze",
       loading: "Connecting neurons... may take 10-20 seconds",
       mbti: "MBTI Type",
       animal: "Spirit Animal",
       desc: "Portrait",
-      alertInput: "Please enter a valid BlueSky Handle!",
+      alertInput: "Please enter a valid BlueSky ID!",
+      placeholder: "Ex: scievents.bsky.social",
     }
   }
 
@@ -121,7 +124,7 @@ function App() {
           {/* Principle: Two-way binding; value shows state, onChange updates state */}
           <input
             type="text"
-            placeholder="例如: scievents.bsky.social"
+            placeholder={t.placeholder}
             value={handle}
             onChange={(e) => setHandle(e.target.value)}
           />
