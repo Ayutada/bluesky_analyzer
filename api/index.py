@@ -14,6 +14,15 @@ CORS(app)
 
 # @app.route("/") removed - Frontend is now served by React/Vite
 
+@app.route("/api/search", methods=["GET"])
+def search_actors():
+    q = request.args.get("q", "")
+    if not q:
+        return jsonify([])
+    
+    results = bsky_crawler.search_actors(q)
+    return jsonify(results)
+
 @app.route("/api/analyze", methods=["POST"])
 def analyze_profile():
     data = request.json

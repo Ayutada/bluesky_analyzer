@@ -353,3 +353,71 @@ button.action-btn:disabled {
   color: var(--text-secondary);
   font-size: 0.9rem;
 }
+
+/* Autocomplete Dropdown */
+.autocomplete-wrapper {
+  position: relative;
+  flex: 1;
+  display: flex;
+  /* Ensure the wrapper acts as a container */
+}
+
+.autocomplete-wrapper input {
+  width: 100%;
+}
+
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 0.8rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  margin-top: 0.5rem;
+  z-index: 100;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.autocomplete-item {
+  display: flex;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  gap: 0.8rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-item:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.autocomplete-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.autocomplete-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.autocomplete-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.autocomplete-handle {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}

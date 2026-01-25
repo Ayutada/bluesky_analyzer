@@ -1,6 +1,7 @@
 /* client/src/App.jsx */
 import { useState } from 'react'
 import './App.css' // Import styles
+import AutocompleteInput from './AutocompleteInput' // Import Autocomplete Component
 
 function App() {
   // --- State Definition ---
@@ -122,11 +123,11 @@ function App() {
         {/* Input Area */}
         <div className="input-group">
           {/* Principle: Two-way binding; value shows state, onChange updates state */}
-          <input
-            type="text"
+          <AutocompleteInput
             placeholder={t.placeholder}
             value={handle}
-            onChange={(e) => setHandle(e.target.value)}
+            onChange={setHandle}
+            disabled={loading}
           />
           <button className="action-btn" onClick={handleAnalyze} disabled={loading}>
             {t.btn}
