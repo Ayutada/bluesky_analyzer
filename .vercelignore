@@ -8,3 +8,5 @@ __pycache__
 *.pyc
 crawler.py
 rag_bot.py
+requirements-rag.txt
+requirements_backup.txt
