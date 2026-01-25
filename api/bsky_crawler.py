@@ -56,6 +56,23 @@ def get_profile_data(handle):
     print(f"Successfully fetched data for {handle}")
     return result
 
+def search_actors(term, limit=5):
+    """
+    Searches for actors matching the term using searchActorsTypeahead.
+    """
+    if not term or len(term.strip()) < 1:
+        return []
+        
+    url = f"{BSKY_API_BASE}/app.bsky.actor.searchActorsTypeahead"
+    try:
+        res = requests.get(url, params={"q": term, "limit": limit})
+        res.raise_for_status()
+        data = res.json()
+        return data.get("actors", [])
+    except Exception as e:
+        print(f"Error searching actors for {term}: {e}")
+        return []
+
 if __name__ == "__main__":
     # Test
     data = get_profile_data("scievents.bsky.social")

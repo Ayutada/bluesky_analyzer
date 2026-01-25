@@ -1,6 +1,7 @@
 /* client/src/App.jsx */
 import { useState } from 'react'
 import './App.css' // Import styles
+import AutocompleteInput from './AutocompleteInput' // Import Autocomplete Component
 
 function App() {
   // --- State Definition ---
@@ -10,6 +11,16 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
+
+  // Featured accounts for users to try
+  const featuredAccounts = [
+    { handle: 'ngntrtr.bsky.social', displayName: 'ナガノ' },
+    { handle: 'chiitan.love', displayName: 'Chiitan🌈ちぃたん☆' },
+    { handle: 'nytimes.com', displayName: 'The New York Times' },
+    { handle: 'sora-sakurai.bsky.social', displayName: '桜井 政博' },
+    { handle: 'mokmok-len.bsky.social', displayName: 'モクモクれん' },
+    { handle: 'stephenking.bsky.social', displayName: 'Stephen King' }
+  ]
 
   // Multi-language dictionary (can be defined outside the component or in a separate file)
   const translations = {
@@ -23,6 +34,7 @@ function App() {
       desc: "性格画像",
       alertInput: "请输入有效的 BlueSky ID！",
       placeholder: "例如: scievents.bsky.social",
+      featuredTitle: "🔥 试试这些热门账号",
     },
     jp: {
       title: "BlueSky 性格診断",
@@ -34,6 +46,7 @@ function App() {
       desc: "性格プロフィール",
       alertInput: "有効な BlueSky ID を入力してください！",
       placeholder: "例: scievents.bsky.social",
+      featuredTitle: "🔥 人気アカウントを試してみる",
     },
     en: {
       title: "BlueSky Personality Analyzer",
@@ -45,6 +58,7 @@ function App() {
       desc: "Portrait",
       alertInput: "Please enter a valid BlueSky ID!",
       placeholder: "Ex: scievents.bsky.social",
+      featuredTitle: "🔥 Try these trending accounts",
     }
   }
 
@@ -122,15 +136,33 @@ function App() {
         {/* Input Area */}
         <div className="input-group">
           {/* Principle: Two-way binding; value shows state, onChange updates state */}
-          <input
-            type="text"
+          <AutocompleteInput
             placeholder={t.placeholder}
             value={handle}
-            onChange={(e) => setHandle(e.target.value)}
+            onChange={setHandle}
+            disabled={loading}
           />
           <button className="action-btn" onClick={handleAnalyze} disabled={loading}>
             {t.btn}
           </button>
+        </div>
+
+        {/* Featured Accounts Section */}
+        <div className="featured-accounts">
+          <p className="featured-title">{t.featuredTitle}</p>
+          <div className="account-chips">
+            {featuredAccounts.map((account) => (
+              <button
+                key={account.handle}
+                className="account-chip"
+                onClick={() => setHandle(account.handle)}
+                disabled={loading}
+              >
+                <span className="chip-name">{account.displayName}</span>
+                <span className="chip-handle">@{account.handle.split('.')[0]}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Loading State Rendering */}
