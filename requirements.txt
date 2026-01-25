@@ -1,9 +1,11 @@
-flask
-flask-cors
 requests
 beautifulsoup4
 markdownify
 python-dotenv
+langchain
 langchain-google-genai
-langchain-core
-pydantic
+langchain-openai
+langchain-community
+faiss-cpu
+flask
+flask-cors
