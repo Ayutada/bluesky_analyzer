@@ -421,3 +421,84 @@ button.action-btn:disabled {
   font-size: 0.8rem;
   color: var(--text-secondary);
 }
+
+/* Featured Accounts Section */
+.featured-accounts {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.featured-title {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.8rem;
+  font-weight: 500;
+}
+
+.account-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.account-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: white;
+  border: 2px solid rgba(245, 158, 11, 0.3);
+  border-radius: 12px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  min-width: 100px;
+}
+
+.account-chip:hover:not(:disabled) {
+  border-color: var(--accent-color);
+  background: rgba(245, 158, 11, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+.account-chip:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.account-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chip-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.chip-handle {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+@media (max-width: 600px) {
+  .account-chips {
+    gap: 0.5rem;
+  }
+
+  .account-chip {
+    min-width: 80px;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .chip-name {
+    font-size: 0.8rem;
+  }
+
+  .chip-handle {
+    font-size: 0.7rem;
+  }
+}
