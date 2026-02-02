@@ -21,10 +21,9 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 # 2. Configure Model (Hybrid Architecture)
 
-# Chat Model: Use Google Gemini 2.0 Flash
-# If 2.0 preview is unstable, can switch back to "gemini-1.5-flash" at any time
+# Chat Model: Use Google Gemini 2.5 Flash-Lite
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.0-flash-exp", 
+    model="gemini-2.5-flash-lite", 
     temperature=0
 )
 
