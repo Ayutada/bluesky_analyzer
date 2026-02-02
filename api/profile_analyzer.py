@@ -13,9 +13,9 @@ if not os.getenv("GOOGLE_API_KEY"):
     print("Error: Please check the .env file to ensure GOOGLE_API_KEY is filled in correctly!")
 
 # 2. Configure Model
-# Chat Model: Use Google Gemini 2.0 Flash
+# Chat Model: Use Google Gemini 2.5 Flash-Lite
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.0-flash-exp", 
+    model="gemini-2.5-flash-lite", 
     temperature=0
 )
 
